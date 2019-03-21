@@ -16,5 +16,3 @@
   yum:
     name: "filebeat-{{ filebeat_version }}"
     state: present
-  notify:
-    - restart filebeat
