@@ -1,53 +1,20 @@
-[![Build Status](https://travis-ci.org/open-io/ansible-role-openio-filebeat.svg?branch=master)](https://travis-ci.org/open-io/ansible-role-openio-filebeat)
-# Ansible role `filebeat`
+# Docker test environment
 
-An Ansible role for installing and configuring filebeat.
+1. Fetch the test branch: `git fetch origin docker-tests`
+2. Create a Git worktree for the test code: `git worktree add docker-tests docker-tests`. This will create a directory `docker-tests/`
+3. The script `docker-tests.sh` will create a Docker container, and apply this role from a playbook `<test.yml>`. The Docker images are configured for testing Ansible roles and are published at <https://hub.docker.com/r/cdelgehier/docker_images_ansible/>. There are images available for several distributions and versions. The distribution and version should be specified outside the script using environment variables:
 
-## Requirements
+    ```
+    DISTRIBUTION=centos VERSION=7 ANSIBLE_VERSION=2.5 ./docker-tests/docker-tests.sh
+    DISTRIBUTION=ubuntu VERSION=16.04 ANSIBLE_VERSION=2.5 ./docker-tests/docker-tests.sh
+    ```
+4. You can test another use case by adding an argument to the script. An argument `<another>` will apply a playbook `<another.yml>`
 
-- Ansible 2.4+
+5. You can run functionnal tests locally like that:
 
-## Role Variables
-
-| Variable                               | Description                                   | Type    |
-| -------------------------------------- | --------------------------------------------- | ------- |
-| `filebeat_version`                     | Filebeat version to install                   | string  |
-| `openio_filebeat_namespace`            | OpenIO Namespace to monitor                   | string  |
-| `openio_filebeat_gridinit_dir`         | Filebeat gridinit directory                   | string  |
-| `openio_filebeat_gridinit_file_prefix` | Gridinit unit prefix                          | string  |
-| `openio_filebeat_pid_directory`        | Provision only, without restarting services   | boolean |
-| `openio_filebeat_serviceid`            | Filebeat service id                           | integer |
-| `openio_filebeat_volume`               | Filebeat internal directory                   | string  |
-| `openio_filebeat_openio_log_path`      | Path to monitored openio log files            | string  |
-| `openio_filebeat_es_hosts`             | List of Elasticseach IP:PORTs to send data to | list    |
-| `openio_filebeat_provision_only`       | Provision only, without restarting            | boolean |
-| `openio_filebeat_input_options`        | Filebeat options for processing logs          | dict    |
-| `openio_filebeat_custom_inputs`        | Additional configs of log files to monitor    | list    |
-
-
-## Dependencies
-
-No dependencies.
-
-## Example Playbook
-
-See docker-tests branch
-
-## Contributing
-
-Issues, feature requests, ideas are appreciated and can be posted in the Issues section.
-
-Pull requests are also very welcome.
-The best way to submit a PR is by first creating a fork of this Github project, then creating a topic branch for the suggested change and pushing that branch to your own fork.
-Github can then easily create a PR based on that branch.
-
-## License
-
-GNU AFFERO GENERAL PUBLIC LICENSE, Version 3
-
-## Contributors
-
-- [Cedric DELGEHIER](https://github.com/cdelgehier) (maintainer)
-- [Romain ACCIARI](https://github.com/racciari) (maintainer)
-- [Vincent LEGOLL](https://github.com/vincent-legoll) (maintainer)
-- [Vladimir DOMBROVSKI](https://github.com/vdombrovski) (maintainer)
+    ```
+    SUT_ID=9acda29c356b ./docker-tests/functional-tests.sh
+    SUT_IP=172.17.0.2   ./docker-tests/functional-tests.sh
+    ```
+   
+The specific combinations of distributions and versions that are supported by this role are specified in `.travis.yml`.
