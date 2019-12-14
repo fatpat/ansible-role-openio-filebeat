@@ -2,20 +2,24 @@
 - name: Install Key
   apt_key:
     url: "{{ openio_filebeat_gpg_url }}"
+  tags: install
 
 - name: Check that HTTPS transport is available to APT
   apt:
     name: apt-transport-https
     state: present
+  tags: install
 
 - name: Add repo
   apt_repository:
     repo: "{{ openio_filebeat_repo_url }}"
     state: present
     update_cache: true
+  tags: install
 
 - name: Install filebeat
   apt:
     name: "filebeat={{ openio_filebeat_version }}"
     state: present
+  tags: install
 ...

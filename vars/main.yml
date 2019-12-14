@@ -1,27 +1,51 @@
 ---
-openio_filebeat_sysconfig_dir: "/etc/oio/sds/{{ openio_filebeat_namespace }}"
 openio_filebeat_servicename: "filebeat-{{ openio_filebeat_serviceid}}"
-openio_filebeat_log_dir:
-  "/var/log/oio/sds/{{ openio_filebeat_namespace }}/{{ openio_filebeat_servicename }}"
-syslog_user: syslog
+openio_filebeat_log_dir: "{{ openio_filebeat_openio_log_path }}/{{ openio_filebeat_servicename }}"
+openio_filebeat_sysconfig_dir: "/etc/oio/sds/{{ openio_filebeat_namespace }}/{{ openio_filebeat_servicename }}"
+openio_filebeat_pid_directory: "/run/oio/sds/{{ openio_filebeat_namespace }}"
+openio_filebeat_openio_log_path: "/var/log/oio/sds/{{ openio_filebeat_namespace }}"
+openio_filebeat_version: 7.5.0
 
 openio_filebeat_default_inputs:
   - service: oioswift
     path: "{{ openio_filebeat_openio_log_path }}/oioswift-*/oioswift-*.log"
-    format: "%{} %{oio_host} %{} %{oio_loglevel}  %{oio_remote_addr} %{oio_local_addr} %{} %{oio_method} %{oio_url} %{} %{oio_status} %{} %{oio_user_agent} %{} %{oio_bytes_received} %{oio_bytes_sent} %{} %{oio_txid} %{} %{oio_resp_time_ms} %{oio_swift_source} %{} %{} %{} %{}"
+    format: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioswift,%{oio_service_id}: \
+             %{oio_loglevel}  %{oio_client_ip} %{oio_remote_addr} %{} %{oio_method} %{oio_url} %{} %{oio_status} \
+             %{} %{oio_user_agent} %{} %{oio_req_size} %{oio_resp_size} %{} %{oio_txid} %{} %{oio_resp_time} \
+             %{oio_swift_source} %{oio_swift_s3_op} %{oio_req_start_time} %{oio_req_end_time} %{oio_policy_index}"
+
   - service: meta2
     path: "{{ openio_filebeat_openio_log_path }}/meta2-*/meta2-*.access"
-    format: "%{} %{oio_host} %{} %{oio_loglevel}  %{} %{} %{} %{} %{oio_local_addr} %{oio_remote_addr} %{oio_method} %{oio_status} %{oio_resp_time} %{oio_size} %{oio_m2_base} %{oio_txid} %{} %{}"
+    format: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta2,%{oio_service_id}: \
+             %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} \
+             %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} \
+             %{} %{oio_txid} %{oio_playload}"
+
   - service: meta1
     path: "{{ openio_filebeat_openio_log_path }}/meta1-*/meta1-*.access"
-    format: "%{} %{oio_host} %{} %{oio_loglevel}  %{} %{} %{} %{} %{oio_local_addr} %{oio_remote_addr} %{oio_method} %{oio_status} %{oio_resp_time} %{oio_size} %{oio_m2_base} %{oio_txid} %{} %{}"
+    format: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta1,%{oio_service_id}: \
+             %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} \
+             %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} \
+             %{} %{oio_txid} %{oio_playload}"
+
   - service: meta0
     path: "{{ openio_filebeat_openio_log_path }}/meta0-*/meta0-*.access"
-    format: "%{} %{oio_host} %{} %{oio_loglevel}  %{} %{} %{} %{} %{oio_local_addr} %{oio_remote_addr} %{oio_method} %{oio_status} %{oio_resp_time} %{oio_size} %{} %{oio_txid} %{}"
+    format: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta0,%{oio_service_id}: \
+             %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} \
+             %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} \
+             %{} %{oio_txid} %{oio_playload}"
+
   - service: oioproxy
     path: "{{ openio_filebeat_openio_log_path }}/oioproxy-*/oioproxy-*.access"
-    format: "%{} %{oio_host} %{} %{oio_loglevel}  %{} %{} %{} %{} %{oio_local_addr} %{oio_remote_addr} %{oio_method} %{oio_status} %{oio_resp_time} %{oio_size} %{oio_m2_base} %{oio_txid} %{oio_url} %{}"
+    format: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioproxy,%{oio_service_id}: \
+             %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} \
+             %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} \
+             %{} %{oio_txid} %{oio_url} %{oio_playload}"
+
   - service: rawx
     path: "{{ openio_filebeat_openio_log_path }}/rawx-*/rawx-*-httpd-access.log"
-    format: "%{} %{} %{} %{oio_host} %{} %{} %{} %{} %{oio_loglevel} %{oio_local_addr} %{oio_remote_addr} %{oio_method} %{oio_status} %{oio_resp_time} %{oio_size} %{oio_chunk_id} %{oio_txid} %{}"
+    format: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},rawx,%{oio_service_id}[%{oio_process_id}]: \
+             %{oio_loglevel} %{} access %{} %{} %{oio_local_addr}:%{oio_local_port} \
+             %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} \
+             %{oio_resp_size} %{oio_req_size} %{} %{oio_txid} %{oio_url}"
 ...
