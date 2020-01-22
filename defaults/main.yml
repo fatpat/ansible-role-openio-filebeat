@@ -1,20 +1,24 @@
 ---
-openio_filebeat_version: 6.7.0
-
-openio_filebeat_namespace: OPENIO
-openio_filebeat_gridinit_dir: "/etc/gridinit.d/{{ openio_filebeat_namespace }}"
-openio_filebeat_gridinit_file_prefix: ""
-openio_filebeat_pid_directory:
-  "/run/filebeat/{{ openio_filebeat_namespace }}/filebeat-{{ openio_filebeat_serviceid }}"
+openio_filebeat_namespace: "{{ namespace | default('OPENIO') }}"
 
 openio_filebeat_serviceid: "0"
-openio_filebeat_volume: "/var/lib/oio/sds/{{ openio_filebeat_namespace }}/filebeat-{{ openio_filebeat_serviceid }}"
-openio_filebeat_openio_log_path: "/var/log/oio/sds/{{ openio_filebeat_namespace }}"
+openio_filebeat_volume: "/var/lib/oio/sds/{{ openio_filebeat_namespace }}/{{ openio_filebeat_servicename }}"
 
-openio_filebeat_es_hosts:
-  - "localhost:6400"
+openio_filebeat_gridinit_dir: "/etc/gridinit.d/{{ openio_filebeat_namespace }}"
+openio_filebeat_gridinit_file_prefix: ""
+
 
 openio_filebeat_provision_only: false
+
+
+openio_filebeat_elasticsearch_group: elasticsearch
+openio_filebeat_elasticsearch_hosts: "{{ (groups[openio_filebeat_elasticsearch_group] \
+  | map('extract', hostvars, ['openio_bind_mgmt_address']) \
+  | map('regex_replace', '$', ':' ~ openio_filebeat_elasticsearch_port) \
+  | list | unique) if openio_filebeat_elasticsearch_group in groups \
+  else [] }}"
+openio_filebeat_elasticsearch_port:
+  "{{ openio_elasticsearch_bind_port | d(default_openio_elasticsearch_bind_port) | d(6900) }}"
 
 openio_filebeat_input_options:
   fields_under_root: true
@@ -32,6 +36,4 @@ openio_filebeat_custom_inputs: []
 #   format: [STRING_PARSER]
 
 openio_filebeat_inputs: "{{ openio_filebeat_default_inputs + openio_filebeat_custom_inputs }}"
-
-
 ...

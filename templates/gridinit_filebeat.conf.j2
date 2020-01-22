@@ -1,8 +1,6 @@
 # {{ ansible_managed }}
-[Service.{{ openio_filebeat_namespace }}-filebeat-{{ openio_filebeat_serviceid }}]
-command=/usr/bin/filebeat -c {{ openio_filebeat_sysconfig_dir }}/{{ openio_filebeat_servicename }}/filebeat.yml -path.home /usr/share/filebeat -path.logs {{ openio_filebeat_log_dir }} -path.data {{ openio_filebeat_volume }}
-# -path.config /etc/filebeat
-
+[Service.{{ openio_filebeat_namespace }}-{{ openio_filebeat_servicename }}]
+command=/usr/bin/filebeat -c {{ openio_filebeat_sysconfig_dir }}/filebeat.yml -path.home /usr/share/filebeat -path.logs {{ openio_filebeat_log_dir }} -path.data {{ openio_filebeat_volume }}
 enabled=true
 start_at_boot=true
 on_die=respawn

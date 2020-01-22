@@ -3,11 +3,12 @@
 ---
 setup.template.name: "oio-filebeat"
 setup.template.pattern: "oio-filebeat"
+setup.ilm.enabled: false
 
 filebeat.inputs:
 {% for input in openio_filebeat_inputs | list %}
 - type: log
-  {% for opt, value in openio_filebeat_input_options.iteritems() %}
+  {% for opt, value in openio_filebeat_input_options.items() %}
   {{opt}}: {{value}}
   {% endfor %}
   paths:
@@ -25,14 +26,20 @@ processors:
     when.equals:
       oio_service: "{{ input.service }}"
 {% endfor %}
-- drop_event:
-    when.and:
-      - equals:
-          oio_service: "oioswift"
-      - not.equals:
-          oio_swift_source: "-"
+
+# convert oio_timestamp to @timestamp to store actual log event
+# and not when the log has been analyzed
+- timestamp:
+    field: oio_timestamp
+    layouts:
+      - "2006-01-02T15:04:05.999999Z07:00"
+    when:
+      not:
+        equals:
+          oio_service: "rawx"
+
 - drop_fields:
-    fields: ["message", "beat", "log", "source", "offset", "prospector", "input", "host"]
+    fields: ["message", "beat", "log", "source", "offset", "prospector", "input", "host", "oio_timestamp"]
 
 logging.level: info
 logging.to_files: true
@@ -45,7 +52,7 @@ logging.files:
 
 # TODO: VDO: Support SSL/Configurable options
 output.elasticsearch:
-  hosts: ["{{ openio_filebeat_es_hosts | join('","') }}"]
+  hosts: ["{{ openio_filebeat_elasticsearch_hosts | join('","') }}"]
   protocol: http
   path: /
   index: "oio-filebeat"
