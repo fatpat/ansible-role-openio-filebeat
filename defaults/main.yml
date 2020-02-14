@@ -36,4 +36,10 @@ openio_filebeat_custom_inputs: []
 #   format: [STRING_PARSER]
 
 openio_filebeat_inputs: "{{ openio_filebeat_default_inputs + openio_filebeat_custom_inputs }}"
+
+openio_filebeat_servicename: "filebeat-{{ openio_filebeat_serviceid}}"
+openio_filebeat_log_dir: "{{ openio_filebeat_openio_log_path }}/{{ openio_filebeat_servicename }}"
+openio_filebeat_sysconfig_dir: "/etc/oio/sds/{{ openio_filebeat_namespace }}/{{ openio_filebeat_servicename }}"
+openio_filebeat_pid_directory: "/run/oio/sds/{{ openio_filebeat_namespace }}"
+openio_filebeat_openio_log_path: "/var/log/oio/sds/{{ openio_filebeat_namespace }}"
 ...
