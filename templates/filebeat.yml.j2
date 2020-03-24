@@ -21,14 +21,14 @@ filebeat.inputs:
     oio_service: "oioswift"
   processors:
     - dissect:
-        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioswift,%{oio_service_id}: %{oio_loglevel}  %{oio_client_ip} %{oio_remote_addr} %{} %{oio_method} %{oio_url} %{} %{oio_status} %{} %{oio_user_agent} %{} %{oio_req_size} %{oio_resp_size} %{} %{oio_txid} %{} %{oio_resp_time} %{oio_swift_source} %{oio_swift_s3_op} %{oio_req_start_time} %{oio_req_end_time} %{oio_policy_index}"
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioswift,%{oio_service_index}: %{oio_loglevel}  %{oio_client_ip} %{oio_remote_addr} %{} %{oio_method} %{oio_url} %{} %{oio_status} %{} %{oio_user_agent} %{} %{oio_req_size} %{oio_resp_size} %{} %{oio_txid} %{} %{oio_resp_time} %{oio_swift_source} %{oio_swift_s3_op} %{oio_req_start_time} %{oio_req_end_time} %{oio_policy_index}"
         field: "message"
         target_prefix: ""
         when:
           regexp:
             message: " info  "
     - dissect:
-        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioswift,%{oio_service_id}: %{oio_loglevel}  %{oio_message} (txn: %{oio_txid})"
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioswift,%{oio_service_index}: %{oio_loglevel}  %{oio_message} (txn: %{oio_txid})"
         field: "message"
         target_prefix: ""
         when:
@@ -50,7 +50,7 @@ filebeat.inputs:
     oio_service: "meta2"
   processors:
     - dissect:
-        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta2,%{oio_service_id}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_playload}"
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta2,%{oio_service_index}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_playload}"
         field: "message"
         target_prefix: ""
 
@@ -69,7 +69,7 @@ filebeat.inputs:
     oio_service: "meta1"
   processors:
     - dissect:
-        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta1,%{oio_service_id}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_playload}"
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta1,%{oio_service_index}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_playload}"
         field: "message"
         target_prefix: ""
 
@@ -88,7 +88,7 @@ filebeat.inputs:
     oio_service: "meta0"
   processors:
     - dissect:
-        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta0,%{oio_service_id}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_playload}"
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta0,%{oio_service_index}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_playload}"
         field: "message"
         target_prefix: ""
 
@@ -107,7 +107,7 @@ filebeat.inputs:
     oio_service: "oioproxy"
   processors:
     - dissect:
-        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioproxy,%{oio_service_id}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_url} %{oio_playload}"
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioproxy,%{oio_service_index}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_url} %{oio_playload}"
         field: "message"
         target_prefix: ""
 
@@ -126,7 +126,7 @@ filebeat.inputs:
     oio_service: "rawx"
   processors:
     - dissect:
-        tokenizer: "%{} %{} %{} %{oio_host} OIO,%{oio_namespace},rawx,%{oio_service_id} %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_resp_size} %{oio_req_size} %{} %{oio_txid} %{oio_url}"
+        tokenizer: "%{} %{} %{} %{oio_host} OIO,%{oio_namespace},rawx,%{oio_service_index} %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_resp_size} %{oio_req_size} %{} %{oio_txid} %{oio_url}"
         field: "message"
         target_prefix: ""
 
