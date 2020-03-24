@@ -24,6 +24,16 @@ filebeat.inputs:
         tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioswift,%{oio_service_index}: %{oio_loglevel}  %{oio_client_ip} %{oio_remote_addr} %{} %{oio_method} %{oio_url} %{} %{oio_status} %{} %{oio_user_agent} %{} %{oio_req_size} %{oio_resp_size} %{} %{oio_txid} %{} %{oio_resp_time} %{oio_swift_source} %{oio_swift_s3_op} %{oio_req_start_time} %{oio_req_end_time} %{oio_policy_index}"
         field: "message"
         target_prefix: ""
+        when:
+          regexp:
+            message: " info  "
+    - dissect:
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioswift,%{oio_service_index}: %{oio_loglevel}  %{oio_message} (txn: %{oio_txid})"
+        field: "message"
+        target_prefix: ""
+        when:
+          regexp:
+            message: " err  "
 
 - type: log
   scan_frequency: 10s
