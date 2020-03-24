@@ -6,38 +6,129 @@ setup.template.pattern: "oio-filebeat"
 setup.ilm.enabled: false
 
 filebeat.inputs:
-{% for input in openio_filebeat_inputs | list %}
 - type: log
-  {% for opt, value in openio_filebeat_input_options.items() %}
-  {{opt}}: {{value}}
-  {% endfor %}
+  scan_frequency: 10s
+  close_renamed: True
+  ignore_older: 0
+  fields_under_root: True
+  clean_removed: True
+  harvester_buffer_size: 16384
+  close_inactive: 5m
+  max_bytes: 10485760
   paths:
-      - "{{ input.path }}"
+    - "{{ openio_filebeat_openio_log_path }}/oioswift-*/oioswift-*.log"
   fields:
-    oio_service: "{{ input.service }}"
-{% endfor %}
+    oio_service: "oioswift"
+  processors:
+    - dissect:
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioswift,%{oio_service_index}: %{oio_loglevel}  %{oio_client_ip} %{oio_remote_addr} %{} %{oio_method} %{oio_url} %{} %{oio_status} %{} %{oio_user_agent} %{} %{oio_req_size} %{oio_resp_size} %{} %{oio_txid} %{} %{oio_resp_time} %{oio_swift_source} %{oio_swift_s3_op} %{oio_req_start_time} %{oio_req_end_time} %{oio_policy_index}"
+        field: "message"
+        target_prefix: ""
+
+- type: log
+  scan_frequency: 10s
+  close_renamed: True
+  ignore_older: 0
+  fields_under_root: True
+  clean_removed: True
+  harvester_buffer_size: 16384
+  close_inactive: 5m
+  max_bytes: 10485760
+  paths:
+    - "{{ openio_filebeat_openio_log_path }}/meta2-*/meta2-*.access"
+  fields:
+    oio_service: "meta2"
+  processors:
+    - dissect:
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta2,%{oio_service_index}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_playload}"
+        field: "message"
+        target_prefix: ""
+
+- type: log
+  scan_frequency: 10s
+  close_renamed: True
+  ignore_older: 0
+  fields_under_root: True
+  clean_removed: True
+  harvester_buffer_size: 16384
+  close_inactive: 5m
+  max_bytes: 10485760
+  paths:
+    - "{{ openio_filebeat_openio_log_path }}/meta1-*/meta1-*.access"
+  fields:
+    oio_service: "meta1"
+  processors:
+    - dissect:
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta1,%{oio_service_index}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_playload}"
+        field: "message"
+        target_prefix: ""
+
+- type: log
+  scan_frequency: 10s
+  close_renamed: True
+  ignore_older: 0
+  fields_under_root: True
+  clean_removed: True
+  harvester_buffer_size: 16384
+  close_inactive: 5m
+  max_bytes: 10485760
+  paths:
+    - "{{ openio_filebeat_openio_log_path }}/meta0-*/meta0-*.access"
+  fields:
+    oio_service: "meta0"
+  processors:
+    - dissect:
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta0,%{oio_service_index}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_playload}"
+        field: "message"
+        target_prefix: ""
+
+- type: log
+  scan_frequency: 10s
+  close_renamed: True
+  ignore_older: 0
+  fields_under_root: True
+  clean_removed: True
+  harvester_buffer_size: 16384
+  close_inactive: 5m
+  max_bytes: 10485760
+  paths:
+    - "{{ openio_filebeat_openio_log_path }}/oioproxy-*/oioproxy-*.access"
+  fields:
+    oio_service: "oioproxy"
+  processors:
+    - dissect:
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioproxy,%{oio_service_index}: %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size} %{} %{oio_txid} %{oio_url} %{oio_playload}"
+        field: "message"
+        target_prefix: ""
+
+- type: log
+  scan_frequency: 10s
+  close_renamed: True
+  ignore_older: 0
+  fields_under_root: True
+  clean_removed: True
+  harvester_buffer_size: 16384
+  close_inactive: 5m
+  max_bytes: 10485760
+  paths:
+    - "{{ openio_filebeat_openio_log_path }}/rawx-*/rawx-*-httpd-access.log"
+  fields:
+    oio_service: "rawx"
+  processors:
+    - dissect:
+        tokenizer: "%{oio_timestamp} %{oio_host} OIO,%{oio_namespace},rawx,%{oio_service_index}[%{oio_process_id}]: %{oio_loglevel} %{} access %{} %{} %{oio_local_addr}:%{oio_local_port} %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_resp_size} %{oio_req_size} %{} %{oio_txid} %{oio_url}"
+        field: "message"
+        target_prefix: ""
 
 processors:
-{% for input in openio_filebeat_inputs | list %}
-- dissect:
-    tokenizer: "{{ input.format }}"
-    field: "message"
-    target_prefix: ""
-    when.equals:
-      oio_service: "{{ input.service }}"
-{% endfor %}
-
 # convert oio_timestamp to @timestamp to store actual log event
 # and not when the log has been analyzed
 - timestamp:
     field: oio_timestamp
     layouts:
       - "2006-01-02T15:04:05.999999Z07:00"
+      - "UNIX_MS"
 
-#- convert:
-#    fields:
-#      - {from: "oio_resp_time", type: "double"}
-    
 - drop_fields:
     fields: ["message", "beat", "log", "source", "offset", "prospector", "input", "host", "oio_timestamp"]
 
@@ -50,7 +141,6 @@ logging.files:
   permissions: 0644
   rotateeverybytes: 104857600
 
-# TODO: VDO: Support SSL/Configurable options
 output.elasticsearch:
   hosts: ["{{ openio_filebeat_elasticsearch_hosts | join('","') }}"]
   protocol: http
