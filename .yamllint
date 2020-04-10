@@ -1,6 +1,7 @@
 ---
 ignore:
   env/**/*
+  .travis*
 rules:
   braces:
     level: error
@@ -25,9 +26,10 @@ rules:
     max-spaces-after: 1
   comments:
     level: error
-    require-starting-space: false
+    require-starting-space: true
     min-spaces-from-content: 2
-  comments-indentation: disable
+  comments-indentation:
+    level: error
   document-end:
     level: error
     present: true
@@ -55,7 +57,7 @@ rules:
   key-ordering: disable
   line-length:
     level: error
-    max: 999
+    max: 120
     allow-non-breakable-words: true
     allow-non-breakable-inline-mappings: false
   new-line-at-end-of-file: enable

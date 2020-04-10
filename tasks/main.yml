@@ -1,77 +1,26 @@
 ---
-- name: "Include {{ ansible_distribution }} variables"
-  include_vars: "{{ item }}"
-  with_first_found:
-    - "{{ ansible_distribution }}.yml"
-    - "{{ ansible_os_family }}.yml"
-  tags:
-    - install
-    - configure
+- include_role:
+    name: openio-service
+  vars:
+    openio_service_type: "oio-filebeat"
+    openio_service_namespace: "{{ openio_filebeat_namespace }}"
+    openio_service_maintenance_mode: "{{ openio_filebeat_maintenance_mode }}"
+    openio_service_packages:
+      - oio-filebeat
+    openio_service_directories:
+      - path: "{{ openio_service_volume }}"
+    openio_service_configuration_files:
+      - name: filebeat.yml
+    openio_service_services:
+      - command: >-
+          /usr/share/oio-filebeat/bin/filebeat
+          -c {{ openio_service_conf_dir }}/filebeat.yml
+          -path.home /usr/share/oio-filebeat
+          -path.data {{ openio_service_volume }}
 
-- name: "Include {{ ansible_distribution }} tasks"
-  include_tasks: "{{ item }}"
-  with_first_found:
-    - "{{ ansible_distribution }}.yml"
-    - "{{ ansible_os_family }}.yml"
-  tags: install
-
-- name: "Stop/disable default instance"
-  service:
-    name: filebeat
-    state: stopped
-    enabled: false
-  tags: install
-
-- name: Create directories
-  file:
-    path: "{{ item.name }}"
-    state: "{{ item.state | d('directory') }}"
-    owner: "{{ item.owner | d('openio') }}"
-    group: "{{ item.group | d('openio') }}"
-    mode: "{{ item.mode | d('0755') }}"
-    recurse: "{{ item.recurse | d(false) | bool }}"
-  with_items:
-    - name: "{{ openio_filebeat_gridinit_dir }}"
-    - name: "{{ openio_filebeat_sysconfig_dir }}"
-    - name: "{{ openio_filebeat_volume }}"
-    - name: "{{ openio_filebeat_pid_directory }}"
-    - name: "{{ openio_filebeat_log_dir }}"
-      mode: "0750"
-  tags: install
-
-- name: Ensure filebeat pid directory is persistant
-  lineinfile:
-    dest: /etc/tmpfiles.d/filebeat.conf
-    create: true
-    line: "d {{ openio_filebeat_pid_directory }} 755 openio openio -"
-    owner: openio
-    group: openio
-    mode: 0644
-  tags: configure
-  when: openio_filebeat_pid_directory.split(' ')[0] | dirname is match("/run/.*")
-
-- name: Generate configuration files
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: openio
-    group: openio
-    mode: 0644
-  with_items:
-    - src: "filebeat.yml.j2"
-      dest: "{{ openio_filebeat_sysconfig_dir }}/filebeat.yml"
-    - src: "gridinit_filebeat.conf.j2"
-      dest: "{{ openio_filebeat_gridinit_dir }}/{{ openio_filebeat_gridinit_file_prefix }}\
-        {{ openio_filebeat_servicename }}.conf"
-  register: _filebeat_conf
-  tags: configure
-
-- name: Restart filebeat
-  shell: |
-    gridinit_cmd reload
-    gridinit_cmd restart {{ openio_filebeat_namespace }}-{{ openio_filebeat_servicename }}
-  when:
-    - _filebeat_conf.changed
-    - not openio_filebeat_provision_only
-  tags: configure
+    openio_service_checks:
+      - shell:
+          cmd: "pgrep filebeat"
+        retries: 30
+        delay: 2
 ...

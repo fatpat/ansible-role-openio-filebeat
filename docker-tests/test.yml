@@ -1,24 +1,18 @@
 ---
-- hosts: localhost
-  any_errors_fatal: true
+- hosts: all
   become: true
   vars:
     namespace: TRAVIS
-  pre_tasks:
-    - name: Add localhost to group 'elasticsearch'
-      add_host:
-        name: localhost
-        groups: elasticsearch
-        openio_bind_mgmt_address: '{{ ansible_default_ipv4.address }}'
-      changed_when: false
-  roles:
-    - role: repo
-      openio_repository_no_log: false
-      openio_repository_mirror_host: mirror2.openio.io
-    - role: users
-    - role: gridinit
-      openio_gridinit_namespace: "{{ namespace }}"
-      openio_gridinit_per_ns: true
-    - role: role_under_test
-      openio_filebeat_namespace: "{{ namespace }}"
+  tasks:
+    - include_role:
+        name: users
+    - include_role:
+        name: repository
+      vars:
+        openio_repository_no_log: false
+        openio_repository_mirror_host: mirror2.openio.io
+    - include_role:
+        name: gridinit
+    - include_role:
+        name: role_under_test
 ...

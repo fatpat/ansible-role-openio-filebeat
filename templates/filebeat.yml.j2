@@ -7,18 +7,20 @@ setup.ilm.enabled: false
 
 filebeat.inputs:
 {% for input in openio_filebeat_inputs | list %}
+
 - type: log
   {% for opt, value in openio_filebeat_input_options.items() %}
   {{opt}}: {{value}}
   {% endfor %}
   paths:
-      - "{{ input.path }}"
+    - "{{ input.path }}"
   fields:
     oio_service: "{{ input.service }}"
 {% endfor %}
 
 processors:
 {% for input in openio_filebeat_inputs | list %}
+
 - dissect:
     tokenizer: "{{ input.format }}"
     field: "message"
@@ -33,6 +35,7 @@ processors:
     field: oio_timestamp
     layouts:
       - "2006-01-02T15:04:05.999999Z07:00"
+      - "UNIX_MS"
 
 #- convert:
 #    fields:
@@ -42,15 +45,10 @@ processors:
     fields: ["message", "beat", "log", "source", "offset", "prospector", "input", "host", "oio_timestamp"]
 
 logging.level: info
-logging.to_files: true
-logging.files:
-  path: {{ openio_filebeat_log_dir }}
-  name: filebeat.log
-  keepfiles: 7
-  permissions: 0644
-  rotateeverybytes: 104857600
+logging.to_stdout: true
+logging.to_syslog: true
+logging.json: false
 
-# TODO: VDO: Support SSL/Configurable options
 output.elasticsearch:
   hosts: ["{{ openio_filebeat_elasticsearch_hosts | join('","') }}"]
   protocol: http
@@ -63,7 +61,7 @@ output.elasticsearch:
   backoff.init: 1s
   backoff.max: 60s
   timeout: 90
-  pipeline: "filebeat"
+  pipeline: "oio-filebeat"
 
 queue:
   mem:

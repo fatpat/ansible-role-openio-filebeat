@@ -1,4 +1,0 @@
----
-openio_filebeat_gpg_url: https://packages.elastic.co/GPG-KEY-elasticsearch
-openio_filebeat_repo_url: https://artifacts.elastic.co/packages/7.x/yum
-...

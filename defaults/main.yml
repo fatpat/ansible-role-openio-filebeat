@@ -1,24 +1,28 @@
 ---
-openio_filebeat_namespace: "{{ namespace | default('OPENIO') }}"
-
-openio_filebeat_serviceid: "0"
-openio_filebeat_volume: "/var/lib/oio/sds/{{ openio_filebeat_namespace }}/{{ openio_filebeat_servicename }}"
-
-openio_filebeat_gridinit_dir: "/etc/gridinit.d/{{ openio_filebeat_namespace }}"
-openio_filebeat_gridinit_file_prefix: ""
-
-
-openio_filebeat_provision_only: false
-
+openio_filebeat_namespace: "{{ namespace | d('OPENIO') }}"
+openio_filebeat_maintenance_mode: "{{ openio_maintenance_mode | d(false) }}"
 
 openio_filebeat_elasticsearch_group: elasticsearch
-openio_filebeat_elasticsearch_hosts: "{{ (groups[openio_filebeat_elasticsearch_group] \
-  | map('extract', hostvars, ['openio_bind_mgmt_address']) \
-  | map('regex_replace', '$', ':' ~ openio_filebeat_elasticsearch_port) \
-  | list | unique) if openio_filebeat_elasticsearch_group in groups \
-  else [] }}"
-openio_filebeat_elasticsearch_port:
-  "{{ openio_elasticsearch_bind_port | d(default_openio_elasticsearch_global_bind_port) | d(6900) }}"
+openio_filebeat_elasticsearch_port: 6903
+
+openio_filebeat_elasticsearch_hosts: |
+  {% set hosts = [] %}
+  {% if openio_filebeat_elasticsearch_group in groups %}
+  {%   for host in groups[openio_filebeat_elasticsearch_group] %}
+  {%     set port = hostvars[host].openio_elasticsearch_bind_port | d(openio_filebeat_elasticsearch_port) %}
+  {%     set address = hostvars[host].openio_elasticsearch_bind_address %}
+  {%     set address = address | d(hostvars[host].openio_bind_mgmt_address) %}
+  {%     set address = address | d(hostvars[host].openio_bind_address) %}
+  {%     set address = address | d(hostvars[host].ansible_default_ipv4.address) %}
+  {%     set url = 'http://' ~ address ~ ':' ~ port %}
+  {%     set _ = hosts.append(url) %}
+  {%   endfor %}
+  {% else %}
+  {%   set address = openio_bind_mgmt_address | d(openio_bind_address) | d(ansible_default_ipv4.address) %}
+  {%   set url = 'http://' ~ address ~ ':' ~ openio_filebeat_elasticsearch_port %}
+  {%   set _ = hosts.append(url) %}
+  {% endif %}
+  {{ hosts }}
 
 openio_filebeat_input_options:
   fields_under_root: true
@@ -35,11 +39,61 @@ openio_filebeat_custom_inputs: []
 #   path: [PATH_TO_LOG_FILE]
 #   format: [STRING_PARSER]
 
-openio_filebeat_inputs: "{{ openio_filebeat_default_inputs + openio_filebeat_custom_inputs }}"
-
-openio_filebeat_servicename: "filebeat-{{ openio_filebeat_serviceid}}"
-openio_filebeat_log_dir: "{{ openio_filebeat_openio_log_path }}/{{ openio_filebeat_servicename }}"
-openio_filebeat_sysconfig_dir: "/etc/oio/sds/{{ openio_filebeat_namespace }}/{{ openio_filebeat_servicename }}"
-openio_filebeat_pid_directory: "/run/oio/sds/{{ openio_filebeat_namespace }}"
 openio_filebeat_openio_log_path: "/var/log/oio/sds/{{ openio_filebeat_namespace }}"
+openio_filebeat_default_inputs:
+  - service: oioswift
+    path: "{{ openio_filebeat_openio_log_path }}/oioswift-*/oioswift-*.log"
+    format: >-
+      %{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioswift,%{oio_service_index}:
+      %{oio_loglevel}  %{oio_remote_addr} %{oio_local_addr} %{} %{oio_method} %{oio_url} %{} %{oio_status}
+      %{} %{oio_user_agent} %{} %{oio_req_size} %{oio_resp_size} %{} %{oio_txid} %{} %{oio_resp_time}
+      %{oio_swift_source} %{oio_swift_s3_op} %{oio_req_start_time} %{oio_req_end_time} %{oio_policy_index}
+
+  - service: meta2
+    path: "{{ openio_filebeat_openio_log_path }}/meta2-*/meta2-*.access"
+    format: >-
+      %{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta2,%{oio_service_index}:
+      %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port}
+      %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size}
+      %{} %{oio_txid} %{oio_playload}
+
+  - service: meta1
+    path: "{{ openio_filebeat_openio_log_path }}/meta1-*/meta1-*.access"
+    format: >-
+      %{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta1,%{oio_service_index}:
+      %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port}
+      %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size}
+      %{} %{oio_txid} %{oio_playload}
+
+  - service: meta0
+    path: "{{ openio_filebeat_openio_log_path }}/meta0-*/meta0-*.access"
+    format: >-
+      %{oio_timestamp} %{oio_host} OIO,%{oio_namespace},meta0,%{oio_service_index}:
+      %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port}
+      %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size}
+      %{} %{oio_txid} %{oio_playload}
+
+  - service: oioproxy
+    path: "{{ openio_filebeat_openio_log_path }}/oioproxy-*/oioproxy-*.access"
+    format: >-
+      %{oio_timestamp} %{oio_host} OIO,%{oio_namespace},oioproxy,%{oio_service_index}:
+      %{oio_loglevel}  %{oio_process_id} %{oio_thread_id} access %{} %{oio_local_addr}:%{oio_local_port}
+      %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us} %{oio_req_size}
+      %{} %{oio_txid} %{oio_url} %{oio_playload}
+
+  - service: rawx
+    path: "{{ openio_filebeat_openio_log_path }}/rawx-*/rawx-*-httpd-access.log"
+    format: >-
+      %{oio_timestamp} %{oio_host} OIO,%{oio_namespace},rawx,%{oio_service_index}[%{oio_process_id}]:
+      %{oio_loglevel} %{} access %{} %{} %{oio_local_addr}:%{oio_local_port}
+      %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us}
+      %{oio_resp_size} %{oio_req_size} %{} %{oio_txid} %{oio_url}
+
+  - service: keystone
+    path: "/var/log/keystone/uwsgi-req.log"
+    format: >-
+      %{} %{} %{oio_timestamp} %{oio_remote_addr} %{}
+      %{oio_method} %{oio_url} %{oio_status} %{oio_resp_size} %{oio_resp_time_us}
+
+openio_filebeat_inputs: "{{ openio_filebeat_default_inputs + openio_filebeat_custom_inputs }}"
 ...
