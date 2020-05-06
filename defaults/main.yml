@@ -3,7 +3,7 @@ openio_filebeat_namespace: "{{ namespace | d('OPENIO') }}"
 openio_filebeat_maintenance_mode: "{{ openio_maintenance_mode | d(false) }}"
 
 openio_filebeat_elasticsearch_group: elasticsearch
-openio_filebeat_elasticsearch_port: 6903
+openio_filebeat_elasticsearch_port: 6904
 
 openio_filebeat_elasticsearch_hosts: |
   {% set hosts = [] %}

@@ -16,7 +16,7 @@ An Ansible role for install filebeat. Specifically, the responsibilities of this
 | `openio_filebeat_namespace` | `"{{ namespace \| d('OPENIO') }}"` | OpenIO Namespace |
 | `openio_filebeat_maintenance_mode` | `"{{ openio_maintenance_mode \| d(false) }}"` | Maintenance mode |
 | `openio_filebeat_elasticsearch_group` | `elasticsearch` | Elasticsearch group in the inventory |
-| `openio_filebeat_elasticsearch_port` | `6903` | Default port to connect to elasticsearch |
+| `openio_filebeat_elasticsearch_port` | `6904` | Default port to connect to elasticsearch |
 | `openio_filebeat_elasticsearch_hosts` |`generated from `openio_filebeat_elasticsearch_group` | The list of the ES hosts |
 | `openio_filebeat_input_options:` | `` | List of options to apply to each input |
 | `openio_filebeat_custom_inputs` | `[]` | List of customs input, see `openio_filebeat_default_inputs` for syntax |
