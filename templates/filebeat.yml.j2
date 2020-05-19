@@ -52,10 +52,13 @@ processors:
 - drop_fields:
     fields: ["message", "beat", "log", "source", "offset", "prospector", "input", "host", "oio_timestamp"]
 
-logging.level: info
-logging.to_stdout: true
-logging.to_syslog: true
-logging.json: false
+logging:
+  level: info
+  to_stdout: true
+  to_syslog: true
+  json: false
+  metrics:
+    enabled: false
 
 output.elasticsearch:
   hosts: ["{{ openio_filebeat_elasticsearch_hosts | join('","') }}"]
