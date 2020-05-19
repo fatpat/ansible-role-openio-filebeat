@@ -29,6 +29,14 @@ processors:
       oio_service: "{{ input.service }}"
 {% endfor %}
 
+
+# oio_timestamp must exist, otherwise the log line must be discarded
+- drop_event:
+    when:
+      not:
+        has_fields: ['oio_timestamp']
+
+
 # convert oio_timestamp to @timestamp to store actual log event
 # and not when the log has been analyzed
 - timestamp:
