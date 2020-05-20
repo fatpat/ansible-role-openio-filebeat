@@ -2,7 +2,7 @@
 - include_role:
     name: openio-service
   vars:
-    openio_service_type: "oio-filebeat"
+    openio_service_type: "filebeat"
     openio_service_namespace: "{{ openio_filebeat_namespace }}"
     openio_service_maintenance_mode: "{{ openio_filebeat_maintenance_mode }}"
     openio_service_packages:
