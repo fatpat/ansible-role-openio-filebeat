@@ -87,7 +87,7 @@ openio_filebeat_default_inputs:
       %{oio_timestamp} %{oio_host} OIO,%{oio_namespace},rawx,%{oio_service_index}[%{oio_process_id}]:
       %{oio_loglevel} %{} access %{} %{} %{oio_local_addr}:%{oio_local_port}
       %{oio_remote_addr}:%{oio_remote_port} %{oio_method} %{oio_status} %{oio_resp_time_us}
-      %{oio_resp_size} %{oio_req_size} %{} %{oio_txid} %{oio_url}
+      %{oio_resp_size} %{oio_req_size} %{} %{oio_txid} %{oio_url} %{oio_protocol}
 
   - service: keystone
     path: "/var/log/keystone/uwsgi-req.log"
